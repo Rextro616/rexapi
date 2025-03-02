@@ -45,5 +45,5 @@ nb-configuration.xml
 .certs/
 
 #resources
-#/src/main/resources
+/src/main/resources
 
