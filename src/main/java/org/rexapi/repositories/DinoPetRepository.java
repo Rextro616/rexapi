@@ -6,4 +6,5 @@ import org.rexapi.models.dinopet.DinoPet;
 
 @ApplicationScoped
 public class DinoPetRepository implements PanacheRepository<DinoPet> {
+
 }

@@ -12,11 +12,15 @@ public class UserService {
     @Inject
     UserRepository userRepository;
 
+    @Inject
+    DinoPetService dinoPetService;
+
     @Transactional
-    public void crearUsuario(UserDTO dto) {
-        User usuario = new User();
-        usuario.username = dto.username;
-        usuario.token = dto.token;
-        userRepository.persist(usuario);
+    public void createUser(UserDTO dto) {
+        User user = new User();
+        user.username = dto.username;
+        user.token = dto.token;
+        userRepository.persist(user);
+        dinoPetService.createDinoPet(user);
     }
 }

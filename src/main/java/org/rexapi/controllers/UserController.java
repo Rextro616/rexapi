@@ -25,7 +25,7 @@ public class UserController {
     @APIResponse(responseCode = "200", description = "Usuario creado exitosamente")
     @APIResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(schema = @Schema(implementation = String.class)))
     public void createUser(UserDTO dto) {
-        userService.crearUsuario(dto);
+        userService.createUser(dto);
     }
 }
 
