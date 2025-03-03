@@ -19,10 +19,10 @@ public class Season {
     public final int cleanIncrease;
 
     private static final List<Season> SEASONS = List.of(
-            new Season("Winter", 12, 2, 3, 1, 4, 2, 2, 1),
-            new Season("Spring", 3, 5, 2, 2, 2, 3, 1, 2),
-            new Season("Summer", 6, 8, 1, 3, 1, 4, 2, 3),
-            new Season("Autumn", 9, 11, 2, 1, 3, 2, 3, 2)
+            new Season("Winter", 12, 2, 5, 5, 20, 10, 5, 10),
+            new Season("Spring", 3, 5, 10, 20, 5, 10, 10, 10),
+            new Season("Summer", 6, 8, 20, 10, 5, 10, 20, 10),
+            new Season("Autumn", 9, 11, 10, 10, 10, 10, 10, 5)
     );
 
     public static Season getSeasonByMonth(int month) {
