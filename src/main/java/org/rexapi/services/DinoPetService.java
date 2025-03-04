@@ -4,13 +4,16 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
 import org.rexapi.models.dinopet.DinoPet;
 import org.rexapi.models.dinopet.DinoPetDTO;
 import org.rexapi.models.season.Season;
 import org.rexapi.models.user.User;
 import org.rexapi.repositories.DinoPetRepository;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class DinoPetService {
@@ -20,7 +23,8 @@ public class DinoPetService {
     @Inject
     SeasonService seasonService;
 
-    public void createDinoPet(User user){
+    @Transactional
+    public void createDinoPet(User user) {
         DinoPet dinoPet = new DinoPet();
         dinoPet.setUser(user);
         dinoPet.setFood(100);   // Valores iniciales por defecto
@@ -31,48 +35,64 @@ public class DinoPetService {
     }
 
     @Transactional
-    @Scheduled(every="5m")
+    @Scheduled(every = "5m")
     public void decreaseDinoPetsStatus() {
-        List<DinoPet> allDinoPets = dinoPetRepository.listAll();
         Season currentSeason = seasonService.getSeasonByMonth();
+        List<DinoPet> allDinoPets = dinoPetRepository.listAll();
+
+        System.out.println("Ejecutando disminución de estados de DinoPets...");
 
         for (DinoPet dinoPet : allDinoPets) {
             dinoPet.setFood(Math.max(0, dinoPet.getFood() - currentSeason.foodDecrease));
             dinoPet.setSanity(Math.max(0, dinoPet.getSanity() - currentSeason.sanityDecrease));
             dinoPet.setClean(Math.max(0, dinoPet.getClean() - currentSeason.cleanDecrease));
+
+            dinoPetRepository.persist(dinoPet);  // Persistimos cambios
         }
     }
 
     @Transactional
     public DinoPet increaseFood(Long id) {
-        Season currentSeason = seasonService.getSeasonByMonth();
-        DinoPet dinoPet = getDinoPetById(id);
-        dinoPet.setFood(Math.min(dinoPet.getFood() + currentSeason.foodIncrease, 100));
-        return dinoPet;
+        return increaseStat(id, "food");
     }
 
     @Transactional
     public DinoPet increaseClean(Long id) {
-        Season currentSeason = seasonService.getSeasonByMonth();
-        DinoPet dinoPet = getDinoPetById(id);
-        dinoPet.setClean(Math.min(dinoPet.getClean() + currentSeason.cleanIncrease, 100));
-        return dinoPet;
+        return increaseStat(id, "clean");
     }
 
     @Transactional
     public DinoPet increaseSanity(Long id) {
+        return increaseStat(id, "sanity");
+    }
+
+    private DinoPet increaseStat(Long id, String stat) {
         Season currentSeason = seasonService.getSeasonByMonth();
         DinoPet dinoPet = getDinoPetById(id);
-        dinoPet.setSanity(Math.min(dinoPet.getSanity() + currentSeason.sanityIncrease, 100));
+
+        switch (stat) {
+            case "food":
+                dinoPet.setFood(Math.min(dinoPet.getFood() + currentSeason.foodIncrease, 100));
+                break;
+            case "clean":
+                dinoPet.setClean(Math.min(dinoPet.getClean() + currentSeason.cleanIncrease, 100));
+                break;
+            case "sanity":
+                dinoPet.setSanity(Math.min(dinoPet.getSanity() + currentSeason.sanityIncrease, 100));
+                break;
+            default:
+                throw new IllegalArgumentException("Stat inválida: " + stat);
+        }
+
+        dinoPetRepository.persist(dinoPet);
         return dinoPet;
     }
 
-    @Transactional
     public DinoPet getDinoPetById(Long id) {
-        return dinoPetRepository.findById(id);
+        return Optional.ofNullable(dinoPetRepository.findById(id))
+                .orElseThrow(() -> new WebApplicationException("DinoPet no encontrado", 404));
     }
 
-    @Transactional
     public DinoPetDTO transformDinoPetToDTO(Long id) {
         DinoPet dinoPet = getDinoPetById(id);
         return new DinoPetDTO(dinoPet.getHp(), dinoPet.getFood(), dinoPet.getSanity(), dinoPet.getClean());
