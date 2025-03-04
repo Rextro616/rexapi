@@ -16,14 +16,20 @@ import org.rexapi.services.DinoPetService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "DinoPet", description = "Gestión de mascotas")
 public class DinoPetController {
+
     @Inject
     DinoPetService dinoPetService;
 
     @GET
+    @Path("/{id}")
     @Operation(summary = "Obtener mascota", description = "Obtiene una mascota por ID de usuario")
-    @APIResponse(responseCode = "200", description = "")
-    @APIResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(schema = @Schema(implementation = String.class)))
-    public DinoPetDTO getById(Long id) {
+    @APIResponse(responseCode = "200", description = "Mascota obtenida exitosamente",
+            content = @Content(schema = @Schema(implementation = DinoPetDTO.class)))
+    @APIResponse(responseCode = "400", description = "Error en la solicitud",
+            content = @Content(schema = @Schema(implementation = String.class)))
+    @APIResponse(responseCode = "404", description = "Mascota no encontrada",
+            content = @Content(schema = @Schema(implementation = String.class)))
+    public DinoPetDTO getById(@PathParam("id") Long id) {
         return dinoPetService.transformDinoPetToDTO(id);
     }
 }

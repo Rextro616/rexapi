@@ -3,11 +3,15 @@ package org.rexapi.models.user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,9 +19,9 @@ public class User {
 
     @NotBlank
     @Column(length = 80, nullable = false)
-    public String username;
+    private String username;
 
     @NotBlank
     @Column(unique = true, nullable = false)
-    public String token;
+    private String token;
 }

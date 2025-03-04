@@ -18,8 +18,8 @@ public class UserService {
     @Transactional
     public User createUser(UserDTO dto) {
         User user = new User();
-        user.username = dto.username;
-        user.token = dto.token;
+        user.setUsername(dto.username);
+        user.setToken(dto.token);
         userRepository.persist(user);
         dinoPetService.createDinoPet(user);
         return user;
