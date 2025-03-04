@@ -16,11 +16,12 @@ public class UserService {
     DinoPetService dinoPetService;
 
     @Transactional
-    public void createUser(UserDTO dto) {
+    public User createUser(UserDTO dto) {
         User user = new User();
         user.username = dto.username;
         user.token = dto.token;
         userRepository.persist(user);
         dinoPetService.createDinoPet(user);
+        return user;
     }
 }

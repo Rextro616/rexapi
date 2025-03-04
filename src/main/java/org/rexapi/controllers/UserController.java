@@ -8,6 +8,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.rexapi.models.user.User;
 import org.rexapi.models.user.UserDTO;
 import org.rexapi.services.UserService;
 
@@ -24,8 +25,8 @@ public class UserController {
     @Operation(summary = "Crear un nuevo usuario", description = "Registra un usuario en la base de datos")
     @APIResponse(responseCode = "200", description = "Usuario creado exitosamente")
     @APIResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(schema = @Schema(implementation = String.class)))
-    public void createUser(UserDTO dto) {
-        userService.createUser(dto);
+    public User createUser(UserDTO dto) {
+        return userService.createUser(dto);
     }
 }
 
