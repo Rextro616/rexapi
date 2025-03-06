@@ -11,7 +11,6 @@ import org.rexapi.models.season.Season;
 import org.rexapi.models.user.User;
 import org.rexapi.repositories.DinoPetRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,9 +82,13 @@ public class DinoPetService {
             default:
                 throw new IllegalArgumentException("Stat inválida: " + stat);
         }
-
+        dinoPet.setHp(updateHP(dinoPet));
         dinoPetRepository.persist(dinoPet);
         return dinoPet;
+    }
+
+    private double updateHP(DinoPet dinoPet){
+        return (dinoPet.getFood() * 0.4) + (dinoPet.getSanity() * 0.3) + (dinoPet.getClean() * 0.3);
     }
 
     public DinoPet getDinoPetById(Long id) {
@@ -96,5 +99,21 @@ public class DinoPetService {
     public DinoPetDTO transformDinoPetToDTO(Long id) {
         DinoPet dinoPet = getDinoPetById(id);
         return new DinoPetDTO(dinoPet.getHp(), dinoPet.getFood(), dinoPet.getSanity(), dinoPet.getClean());
+    }
+
+    @Scheduled(every = "5m") // Ejecutar cada 5 minutos
+    @Transactional
+    public void validateStats() {
+        List<DinoPet> allDinoPets = dinoPetRepository.listAll();
+
+        for (DinoPet dinoPet : allDinoPets) {
+            if (dinoPet.getFood() < 50 || dinoPet.getSanity() < 50 || dinoPet.getClean() < 50 || dinoPet.getHp() < 50) {
+                handleLowStats(dinoPet);
+            }
+        }
+    }
+
+    private void handleLowStats(DinoPet dinoPet) {
+
     }
 }
