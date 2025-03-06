@@ -22,6 +22,9 @@ public class DinoPetService {
     @Inject
     SeasonService seasonService;
 
+    @Inject
+    FirebaseService firebaseService;
+
     @Transactional
     public void createDinoPet(User user) {
         DinoPet dinoPet = new DinoPet();
@@ -101,7 +104,7 @@ public class DinoPetService {
         return new DinoPetDTO(dinoPet.getHp(), dinoPet.getFood(), dinoPet.getSanity(), dinoPet.getClean());
     }
 
-    @Scheduled(every = "5m") // Ejecutar cada 5 minutos
+    @Scheduled(every = "1m") // Ejecutar cada 5 minutos
     @Transactional
     public void validateStats() {
         List<DinoPet> allDinoPets = dinoPetRepository.listAll();
@@ -114,6 +117,13 @@ public class DinoPetService {
     }
 
     private void handleLowStats(DinoPet dinoPet) {
-
+        String userFirebaseToken = dinoPet.getUser().getToken();
+        if (userFirebaseToken != null && !userFirebaseToken.isEmpty()) {
+            firebaseService.sendNotification(
+                    userFirebaseToken,
+                    "¡Tu DinoPet está en peligro!",
+                    "Revisa los stats de tu DinoPet. Puede morir si no lo cuidas."
+            );
+        }
     }
 }
